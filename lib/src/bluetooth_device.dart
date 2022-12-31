@@ -10,7 +10,7 @@ class BluetoothDevice {
   final BluetoothDeviceType type;
 
   BluetoothDevice.fromProto(protos.BluetoothDevice p)
-      : id = new DeviceIdentifier(p.remoteId),
+      : id = DeviceIdentifier(p.remoteId),
         name = p.name,
         type = BluetoothDeviceType.values[p.type.value];
 
@@ -55,16 +55,16 @@ class BluetoothDevice {
   Future<List<BluetoothService>> discoverServices() async {
     final s = await state.first;
     if (s != BluetoothDeviceState.connected) {
-      return Future.error(new Exception(
+      return Future.error(Exception(
           'Cannot discoverServices while device is not connected. State == $s'));
     }
     var response = FlutterBlue.instance._methodStream
         .where((m) => m.method == "DiscoverServicesResult")
         .map((m) => m.arguments)
-        .map((buffer) => new protos.DiscoverServicesResult.fromBuffer(buffer))
+        .map((buffer) => protos.DiscoverServicesResult.fromBuffer(buffer))
         .where((p) => p.remoteId == id.toString())
         .map((p) => p.services)
-        .map((s) => s.map((p) => new BluetoothService.fromProto(p)).toList())
+        .map((s) => s.map((p) => BluetoothService.fromProto(p)).toList())
         .first
         .then((list) {
       _services.add(list);
@@ -86,8 +86,8 @@ class BluetoothDevice {
     yield await FlutterBlue.instance._channel
         .invokeMethod('services', id.toString())
         .then((buffer) =>
-            new protos.DiscoverServicesResult.fromBuffer(buffer).services)
-        .then((i) => i.map((s) => new BluetoothService.fromProto(s)).toList());
+            protos.DiscoverServicesResult.fromBuffer(buffer).services)
+        .then((i) => i.map((s) => BluetoothService.fromProto(s)).toList());
     yield* _services.stream;
   }
 
@@ -95,13 +95,13 @@ class BluetoothDevice {
   Stream<BluetoothDeviceState> get state async* {
     yield await FlutterBlue.instance._channel
         .invokeMethod('deviceState', id.toString())
-        .then((buffer) => new protos.DeviceStateResponse.fromBuffer(buffer))
+        .then((buffer) => protos.DeviceStateResponse.fromBuffer(buffer))
         .then((p) => BluetoothDeviceState.values[p.state.value]);
 
     yield* FlutterBlue.instance._methodStream
         .where((m) => m.method == "DeviceState")
         .map((m) => m.arguments)
-        .map((buffer) => new protos.DeviceStateResponse.fromBuffer(buffer))
+        .map((buffer) => protos.DeviceStateResponse.fromBuffer(buffer))
         .where((p) => p.remoteId == id.toString())
         .map((p) => BluetoothDeviceState.values[p.state.value]);
   }
@@ -110,13 +110,13 @@ class BluetoothDevice {
   Stream<int> get mtu async* {
     yield await FlutterBlue.instance._channel
         .invokeMethod('mtu', id.toString())
-        .then((buffer) => new protos.MtuSizeResponse.fromBuffer(buffer))
+        .then((buffer) => protos.MtuSizeResponse.fromBuffer(buffer))
         .then((p) => p.mtu);
 
     yield* FlutterBlue.instance._methodStream
         .where((m) => m.method == "MtuSize")
         .map((m) => m.arguments)
-        .map((buffer) => new protos.MtuSizeResponse.fromBuffer(buffer))
+        .map((buffer) => protos.MtuSizeResponse.fromBuffer(buffer))
         .where((p) => p.remoteId == id.toString())
         .map((p) => p.mtu);
   }
@@ -134,7 +134,7 @@ class BluetoothDevice {
 
   /// Indicates whether the Bluetooth Device can send a write without response
   Future<bool> get canSendWriteWithoutResponse =>
-      new Future.error(new UnimplementedError());
+      Future.error(UnimplementedError());
 
   @override
   bool operator ==(Object other) =>

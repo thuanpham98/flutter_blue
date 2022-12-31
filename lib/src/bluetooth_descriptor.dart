@@ -5,7 +5,7 @@
 part of flutter_blue;
 
 class BluetoothDescriptor {
-  static final Guid cccd = new Guid("00002902-0000-1000-8000-00805f9b34fb");
+  static final Guid cccd = Guid("00002902-0000-1000-8000-00805f9b34fb");
 
   final Guid uuid;
   final DeviceIdentifier deviceId;
@@ -18,10 +18,10 @@ class BluetoothDescriptor {
   List<int> get lastValue => _value.value ?? [];
 
   BluetoothDescriptor.fromProto(protos.BluetoothDescriptor p)
-      : uuid = new Guid(p.uuid),
-        deviceId = new DeviceIdentifier(p.remoteId),
-        serviceUuid = new Guid(p.serviceUuid),
-        characteristicUuid = new Guid(p.characteristicUuid),
+      : uuid = Guid(p.uuid),
+        deviceId = DeviceIdentifier(p.remoteId),
+        serviceUuid = Guid(p.serviceUuid),
+        characteristicUuid = Guid(p.characteristicUuid),
         _value = BehaviorSubject.seeded(p.value);
 
   /// Retrieves the value of a specified descriptor
@@ -38,7 +38,7 @@ class BluetoothDescriptor {
     return FlutterBlue.instance._methodStream
         .where((m) => m.method == "ReadDescriptorResponse")
         .map((m) => m.arguments)
-        .map((buffer) => new protos.ReadDescriptorResponse.fromBuffer(buffer))
+        .map((buffer) => protos.ReadDescriptorResponse.fromBuffer(buffer))
         .where((p) =>
             (p.request.remoteId == request.remoteId) &&
             (p.request.descriptorUuid == request.descriptorUuid) &&
@@ -67,7 +67,7 @@ class BluetoothDescriptor {
     return FlutterBlue.instance._methodStream
         .where((m) => m.method == "WriteDescriptorResponse")
         .map((m) => m.arguments)
-        .map((buffer) => new protos.WriteDescriptorResponse.fromBuffer(buffer))
+        .map((buffer) => protos.WriteDescriptorResponse.fromBuffer(buffer))
         .where((p) =>
             (p.request.remoteId == request.remoteId) &&
             (p.request.descriptorUuid == request.descriptorUuid) &&
@@ -76,7 +76,7 @@ class BluetoothDescriptor {
         .first
         .then((w) => w.success)
         .then((success) => (!success)
-            ? throw new Exception('Failed to write the descriptor')
+            ? throw Exception('Failed to write the descriptor')
             : null)
         .then((_) => _value.add(value))
         .then((_) => null);

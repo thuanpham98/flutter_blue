@@ -16,18 +16,18 @@ class Guid {
 
   Guid.fromMac(String input) : this._internal(_fromMacString(input));
 
-  Guid.empty() : this._internal(new List.filled(16, 0));
+  Guid.empty() : this._internal(List.filled(16, 0));
 
   static List<int> _fromMacString(String input) {
-    if (input == null) {
-      throw new ArgumentError("Input was null");
-    }
+    // if (input == null) {
+    // throw ArgumentError("Input was null");
+    // }
 
     input = _removeNonHexCharacters(input);
     final bytes = hex.decode(input);
 
     if (bytes.length != 6) {
-      throw new FormatException("The format is invalid: " + input);
+      throw FormatException("The format is invalid: $input");
     }
 
     return bytes + List<int>.filled(10, 0);
@@ -50,14 +50,16 @@ class Guid {
 
   static String _removeNonHexCharacters(String sourceString) {
     return String.fromCharCodes(sourceString.runes.where((r) =>
-      (r >= 48 && r <= 57) // characters 0 to 9
-      || (r >= 65 && r <= 70)  // characters A to F
-      || (r >= 97 && r <= 102) // characters a to f
-    ));
+            (r >= 48 && r <= 57) // characters 0 to 9
+            ||
+            (r >= 65 && r <= 70) // characters A to F
+            ||
+            (r >= 97 && r <= 102) // characters a to f
+        ));
   }
 
   static int _calcHashCode(List<int> bytes) {
-    const equality = const ListEquality<int>();
+    const equality = ListEquality<int>();
     return equality.hash(bytes);
   }
 
